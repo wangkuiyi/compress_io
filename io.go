@@ -1,4 +1,4 @@
-package compressed_io
+package compress_io
 
 import (
 	"compress/bzip2"
@@ -7,24 +7,24 @@ import (
 	"log"
 )
 
-// NewDecompressReader accepts an input io.ReadCloser and an error,
-// checks if they are valid input reader, and returns an io.ReadCloser
-// which decompress content read from the input.  The decompressing
+// NewReader accepts an input io.ReadCloser and an error, checks if
+// they are valid input reader, and returns an io.ReadCloser which
+// decompress content read from the input.  The decompressing
 // algorithm is specified by format, which could be "" for no
 // decompressing, ".bz" for bzip2, and ".gz" for gzip.
 //
 // Example:
 /*
    f, e := os.Open(filename)
-   if r := NewDecompressReader(f, e, path.Ext(filename)); r != nil {
+   if r := compressed_io.NewReader(f, e, path.Ext(filename)); r != nil {
      defer r.Close()
      ... read from r ...
    }
 */
-func NewDecompressReader(in io.ReadCloser, e error,
+func NewReader(in io.ReadCloser, e error,
 	format string) io.ReadCloser {
 	if e != nil || in == nil {
-		log.Printf("NewDecompressReader: %v", e)
+		log.Printf("NewReader: %v", e)
 		return nil
 	}
 
@@ -47,11 +47,10 @@ func NewDecompressReader(in io.ReadCloser, e error,
 	return in
 }
 
-// NewCompressWriter accepts an output io.WriteCloser and an error,
-// checks if they are valid, and returns an io.WriteCloser which
-// compress content written into it.  The compressing algorithm is
-// specified by format, which could be "" for no compressing, ".gz"
-// for gzip.
+// NewWriter accepts an output io.WriteCloser and an error, checks if
+// they are valid, and returns an io.WriteCloser which compress
+// content written into it.  The compressing algorithm is specified by
+// format, which could be "" for no compressing, ".gz" for gzip.
 //
 // It is noticable that Go standard library compress/bzip2 does not
 // support compressing yet, so neither do we.
@@ -59,15 +58,15 @@ func NewDecompressReader(in io.ReadCloser, e error,
 // Exmaple:
 /*
    f, e := os.Create(filename)
-   if w := NewCompressWriter(f, e, path.Ext(filename)); w != nil {
+   if w := compressed_io.NewWriter(f, e, path.Ext(filename)); w != nil {
      defer w.Close()
      ... write to w ...
    }
 */
-func NewCompressWriter(out io.WriteCloser, e error,
+func NewWriter(out io.WriteCloser, e error,
 	format string) io.WriteCloser {
 	if e != nil || out == nil {
-		log.Printf("NewCompressWriter: %v", e)
+		log.Printf("NewWriter: %v", e)
 		return nil
 	}
 

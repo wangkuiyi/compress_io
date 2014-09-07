@@ -1,4 +1,4 @@
-package compressed_io
+package compress_io
 
 import (
 	"bytes"
@@ -17,20 +17,20 @@ const (
 	d = "Hello, world or 你好，世界 or καλημ ́ρα κóσμ or こんにちはせかい\n"
 )
 
-func TestNewDecmpressReader_CannotOpenFile(t *testing.T) {
+func TestNewReader_CannotOpenFile(t *testing.T) {
 	filename := "a_file_not_there"
 	f, e := os.Open(filename)
-	r := NewDecompressReader(f, e, path.Ext(filename))
+	r := NewReader(f, e, path.Ext(filename))
 	if r != nil {
 		t.Errorf("Expecting nil io.ReadCloser, got non-nil")
 	}
 }
 
-func TestNewDecmpressReader_ReadPlainData(t *testing.T) {
+func TestNewReader_ReadPlainData(t *testing.T) {
 	var buf bytes.Buffer
 	buf.Write([]byte(d))
-	if r := NewDecompressReader(ioutil.NopCloser(&buf), nil, ""); r == nil {
-		t.Skipf("NewDecompressReader failed")
+	if r := NewReader(ioutil.NopCloser(&buf), nil, ""); r == nil {
+		t.Skipf("NewReader failed")
 	} else {
 		defer r.Close()
 		if b, e := ioutil.ReadAll(r); e != nil {
@@ -43,7 +43,7 @@ func TestNewDecmpressReader_ReadPlainData(t *testing.T) {
 	}
 }
 
-func TestNewDecmpressReader_ReadGzipData(t *testing.T) {
+func TestNewReader_ReadGzipData(t *testing.T) {
 	var buf bytes.Buffer
 	if w := gzip.NewWriter(&buf); w == nil {
 		t.Skipf("gzip.NewWriter failed")
@@ -52,7 +52,7 @@ func TestNewDecmpressReader_ReadGzipData(t *testing.T) {
 		w.Close()
 	}
 
-	if r := NewDecompressReader(ioutil.NopCloser(&buf), nil, ".gz"); r == nil {
+	if r := NewReader(ioutil.NopCloser(&buf), nil, ".gz"); r == nil {
 		t.Skipf("NewDecompressedReader failed")
 	} else {
 		defer r.Close()
@@ -66,14 +66,14 @@ func TestNewDecmpressReader_ReadGzipData(t *testing.T) {
 	}
 }
 
-func TestNewDecmpressReader_ReadBzip2Data(t *testing.T) {
-	log.Println("TODO(wyi): Implemente TestNewDecmpressReader_ReadBzip2Data")
+func TestNewReader_ReadBzip2Data(t *testing.T) {
+	log.Println("TODO(wyi): Implemente TestNewReader_ReadBzip2Data")
 }
 
-func TestNewCompressWriter_CannotCreateFile(t *testing.T) {
+func TestNewWriter_CannotCreateFile(t *testing.T) {
 	filename := "/tmp/not_exist_dir/not_there_file"
 	f, e := os.Create(filename)
-	w := NewCompressWriter(f, e, path.Ext(filename))
+	w := NewWriter(f, e, path.Ext(filename))
 	if w != nil {
 		t.Errorf("Expecting nil io.WriteCloser, got non-nil")
 	}
@@ -81,16 +81,16 @@ func TestNewCompressWriter_CannotCreateFile(t *testing.T) {
 
 func writeAndRead(format string) error {
 	var buf bytes.Buffer
-	if w := NewCompressWriter(NopWriteCloser(&buf), nil, format); w == nil {
-		return errors.New("NewCompressWriter failed")
+	if w := NewWriter(NopWriteCloser(&buf), nil, format); w == nil {
+		return errors.New("NewWriter failed")
 	} else {
 		w.Write([]byte(d))
 		w.Close()
 	}
 
-	r := NewDecompressReader(ioutil.NopCloser(&buf), nil, format)
+	r := NewReader(ioutil.NopCloser(&buf), nil, format)
 	if r == nil {
-		return errors.New("NewDecompressReader failed")
+		return errors.New("NewReader failed")
 	} else {
 		defer r.Close()
 		if b, e := ioutil.ReadAll(r); e != nil {
@@ -104,13 +104,13 @@ func writeAndRead(format string) error {
 	return nil
 }
 
-func TestNewCompressWriter_WritePlainData(t *testing.T) {
+func TestNewWriter_WritePlainData(t *testing.T) {
 	if e := writeAndRead(""); e != nil {
 		t.Error(e)
 	}
 }
 
-func TestNewCompressWriter_WriteGzipData(t *testing.T) {
+func TestNewWriter_WriteGzipData(t *testing.T) {
 	if e := writeAndRead(".gz"); e != nil {
 		t.Error(e)
 	}
